@@ -4,6 +4,7 @@ namespace App\Http\Services\V1\Flights\Flight;
 
 
 use GuzzleHttp\Client;
+use function PHPUnit\Framework\isNull;
 
 class FlightService
 {
@@ -18,14 +19,23 @@ class FlightService
         ]);
 
         $response = $client->request('GET', '/v1/flights', [
-            'query' => [
-                'access_key' => '124258e6651c63d32f7e16c97dadb36d',
-                'flight_iata' => 'UA1192',
-            ]
+            'query' => $this->generateApiParameters($data)
         ]);
 
         $body = $response->getBody();
         $arr_body = json_decode($body);
         return $arr_body;
+    }
+
+    public function generateApiParameters($data)
+    {
+        foreach ($data as $key => $value) {
+            if ($value == null) {
+                unset($data[$key]);
+            }
+        }
+        $data['access_key'] = '124258e6651c63d32f7e16c97dadb36d';
+
+        return $data;
     }
 }
