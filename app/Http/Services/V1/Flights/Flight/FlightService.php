@@ -23,8 +23,9 @@ class FlightService
         ]);
 
         $body = $response->getBody();
-        $arr_body = json_decode($body);
-        return $arr_body;
+        $flights = json_decode($body,true);
+
+        return $flights;
     }
 
     public function generateApiParameters($data)

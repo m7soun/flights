@@ -24,8 +24,7 @@ class FlightController extends Controller
         $data = $request->all();
         $flights = $this->flightService->find($data);
 
-        return response()->json(
-            $flights
-        , 200);
+        return response()->json(['flights' => $flights]
+            , 200);
     }
 }
