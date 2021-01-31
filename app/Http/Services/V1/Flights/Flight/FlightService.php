@@ -4,7 +4,6 @@ namespace App\Http\Services\V1\Flights\Flight;
 
 
 use GuzzleHttp\Client;
-use function PHPUnit\Framework\isNull;
 
 class FlightService
 {
@@ -15,7 +14,7 @@ class FlightService
     public function find($data)
     {
         $client = new Client([
-            'base_uri' => 'http://api.aviationstack.com',
+            'base_uri' => env('API_BASE_URL'),
         ]);
 
         $response = $client->request('GET', '/v1/flights', [
@@ -23,9 +22,9 @@ class FlightService
         ]);
 
         $body = $response->getBody();
-        $flights = json_decode($body,true);
+        $data = $this->map(json_decode($body, true));
 
-        return $flights;
+        return $data;
     }
 
     public function generateApiParameters($data)
@@ -35,8 +34,28 @@ class FlightService
                 unset($data[$key]);
             }
         }
-        $data['access_key'] = '124258e6651c63d32f7e16c97dadb36d';
+        $data['access_key'] = env('API_KEY');
 
         return $data;
+    }
+
+    // we cant use transformers on array so i will do array mapping
+    public function map($data)
+    {
+        return array_map(function ($data) {
+            return [
+                'flight_status' => $data['flight_status'],
+                'departure_iata' => $data['departure']['iata'],
+                'departure_airport' => $data['departure']['airport'],
+                'arrival_iata' => $data['arrival']['iata'],
+                'arrival_airport' => $data['arrival']['airport'],
+                'airline_name' => $data['airline']['name'],
+                'flight_number' => $data['flight']['number'],
+                'flight_iata' => $data['flight']['iata'],
+                'flight_icao' => $data['flight']['icao'],
+                'aircraft_registration' => $data['aircraft'] != null ? $data['aircraft']['registration'] : 'N/A',
+
+            ];
+        }, $data['data']);
     }
 }
