@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 abstract class Repository
 {
-    abstract public function getModel();
+    abstract public function getApi();
 
     public function find($uuid)
     {

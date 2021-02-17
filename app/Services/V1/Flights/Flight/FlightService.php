@@ -1,30 +1,26 @@
 <?php
 
-namespace App\Http\Services\V1\Flights\Flight;
+namespace App\Services\V1\Flights\Flight;
 
 
-use GuzzleHttp\Client;
+use App\Repositories\V1\Flights\FlightsRepository;
 
 class FlightService
 {
-    public function __construct()
+    /**
+     * @var FlightsRepository
+     */
+    private $flightsRepository;
+
+    public function __construct(FlightsRepository $flightsRepository)
     {
+        $this->flightsRepository = $flightsRepository;
     }
 
     public function find($data)
     {
-        $client = new Client([
-            'base_uri' => env('API_BASE_URL'),
-        ]);
-
-        $response = $client->request('GET', '/v1/flights', [
-            'query' => $this->generateApiParameters($data)
-        ]);
-
-        $body = $response->getBody();
-        $data = $this->map(json_decode($body, true));
-
-        return $data;
+        $flightActivities = $this->flightsRepository->fetchActivities($this->generateApiParameters($data));
+        return $this->map(json_decode($flightActivities, true));
     }
 
     public function generateApiParameters($data)
@@ -34,6 +30,7 @@ class FlightService
                 unset($data[$key]);
             }
         }
+        $data = $this->formatParameters($data);
         $data['access_key'] = env('API_KEY');
 
         return $data;
@@ -57,5 +54,18 @@ class FlightService
 
             ];
         }, $data['data']);
+    }
+
+    public function formatParameters($data)
+    {
+        array_walk($data, function (&$value, $key) {
+            $value = strtoupper(
+                removeSpaces(
+                    trim($value)
+                )
+            );
+        });
+
+        return $data;
     }
 }

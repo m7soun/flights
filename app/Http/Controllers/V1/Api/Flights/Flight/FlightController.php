@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\V1\Api\Flights\Flight;
 
 use App\Http\Controllers\Controller;
-use App\Http\Services\V1\Flights\Flight\FlightService;
+use App\Http\Requests\V1\Api\Flights\Flight\FindRequest;
+use App\Services\V1\Flights\Flight\FlightService;
 use Illuminate\Http\Request;
 
 class FlightController extends Controller
@@ -19,7 +20,7 @@ class FlightController extends Controller
         $this->flightService = $flightService;
     }
 
-    public function find(Request $request)
+    public function find(FindRequest $request)
     {
         $data = $request->all();
         $flights = $this->flightService->find($data);
